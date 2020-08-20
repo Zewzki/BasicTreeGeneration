@@ -7,61 +7,29 @@ import java.util.Random;
 
 public class TreePanel extends JPanel {
 
-    private static final int sWidth = 300;
-    private static final int sHeight = 300;
+    private static final int POINT_SIZE = 5;
 
-    public static final int N_POINTS = 100;
-    public static final int MAX_DIST = sWidth / 3;
+    private int N_POINTS;
+    private int sWidth;
+    private int sHeight;
 
     private Random rand;
-    private ArrayList<Pair<Integer, Integer>> pointList;
+    private ArrayList<Point> drawPoints;
+    private ArrayList<Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>> drawEdges;
     private int source;
-    private ArrayList<Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>> lineList;
-    private boolean[] visited;
 
-    public TreePanel() {
+    public TreePanel(int N_POINTS, int sWidth, int sHeight, ArrayList<Point> drawPoints, ArrayList<Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>> drawEdges) {
 
         setBackground(Color.WHITE);
 
+        this.N_POINTS = N_POINTS;
+        this.sWidth = sWidth;
+        this.sHeight = sHeight;
+
         rand = new Random();
-        pointList = new ArrayList();
+        this.drawPoints = drawPoints;
         source = -1;
-        lineList = new ArrayList();
-        visited = new boolean[N_POINTS];
-
-        for(int i = 0; i < N_POINTS; i++) {
-
-            int x = (int) (rand.nextGaussian() * sWidth / 2) + sWidth * 2;
-            int y = (int) (rand.nextGaussian() * sHeight / 2) + sHeight * 2;
-            pointList.add(new Pair(x, y));
-
-        }
-
-    }
-
-    public void click(int x1, int y1) {
-
-        double minDistance = Integer.MAX_VALUE;
-        int minIndex = -1;
-
-        for(int i = 0; i < N_POINTS; i++) {
-
-            int x2 = pointList.get(i).left;
-            int y2 = pointList.get(i).right;
-
-            double dist = calcDistance(x1, y1, x2, y2);
-
-            if(dist < minDistance) {
-                minDistance = dist;
-                minIndex = i;
-            }
-
-        }
-
-        visited = new boolean[N_POINTS];
-        lineList.clear();
-
-        source = minIndex;
+        this.drawEdges = drawEdges;
 
     }
 
@@ -73,36 +41,29 @@ public class TreePanel extends JPanel {
             if(i == source) g.setColor(Color.BLUE);
             else g.setColor(Color.BLACK);
 
-            int x = pointList.get(i).left;
-            int y = pointList.get(i).right;
-            g.fillOval(x, y, 10, 10);
+            int x = drawPoints.get(i).getPosition().left;
+            int y = drawPoints.get(i).getPosition().right;
+            g.fillOval(x, y, 2 * POINT_SIZE, 2 * POINT_SIZE);
 
         }
 
         g.setColor(Color.RED);
 
-        for(int i = 0; i < lineList.size(); i++) {
+        for(int i = 0; i < drawEdges.size(); i++) {
 
-            Pair a = lineList.get(i).left;
-            Pair b = lineList.get(i).right;
+            Pair a = drawEdges.get(i).left;
+            Pair b = drawEdges.get(i).right;
 
-            g.drawLine((int) a.left, (int) a.right, (int) b.left, (int) b.right);
+            g.drawLine((int) a.left + POINT_SIZE, (int) a.right + POINT_SIZE, (int) b.left + POINT_SIZE, (int) b.right + POINT_SIZE);
 
         }
 
 
     }
 
-    public double calcDistance(int x1, int y1, int x2, int y2) { return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)); }
+    public void addLine(Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> newLine) { drawEdges.add(newLine); }
 
-    public void addLine(Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> newLine) { lineList.add(newLine); }
-
-    public int getSource() { return source; }
-
-    public ArrayList<Pair<Integer, Integer>> getPointList() { return pointList; }
-
-    public boolean[] getVisited() { return visited; }
-    public void setVisited(int i) { visited[i] = true; }
+    public void setSource(int i) { source = i; }
 
 
 }
